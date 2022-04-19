@@ -65,7 +65,7 @@ func (c cosClient[T]) ProcessCommand(ctx context.Context, entityID string, comma
 	return resultingState, response.GetMeta(), nil
 }
 
-// GetState retrieves the current  state of an entity and its metadata
+// GetState retrieves the current state of an entity and its metadata
 func (c cosClient[T]) GetState(ctx context.Context, entityID string) (T, *cospb.MetaData, error) {
 	var defaultT T
 	// call CoS
@@ -95,7 +95,7 @@ func (c cosClient[T]) GetState(ctx context.Context, entityID string) (T, *cospb.
 	return resultingState, response.GetMeta(), nil
 }
 
-// unpackState takes an any to unpack into either pollsv1.Poll or pollsv1.Vote
+// unpackState takes an any to unpack into T
 func unpackState[T proto.Message](any *anypb.Any) (T, error) {
 	var defaultT T
 
