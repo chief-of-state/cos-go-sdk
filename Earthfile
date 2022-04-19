@@ -65,7 +65,7 @@ mock:
     FROM +code
 
 	# generates chief of state mocks
-	RUN --ssh mockery --all --keeptree --dir ./gen/chief_of_state --output ./mocks/gen/chief_of_state --case snake
+	RUN mockery --all --keeptree --dir ./gen/chief_of_state --output ./mocks/gen/chief_of_state --case snake
 
     SAVE ARTIFACT ./mocks mocks AS LOCAL mocks
 
