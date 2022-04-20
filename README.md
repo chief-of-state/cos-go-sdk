@@ -7,16 +7,7 @@ Chief of State go SDK provides an easy way to create and use the a Chief-of-Stat
 With the cos-go-sdk, one can:
 - Create a typed chief-of-state client.
 - `ProcessCommand` Processes a generic `proto.Message` command and returns the `typed` state from the CoS service
-- `ProcessCommandTyped` Processes a generic `proto.Message` command and returns the generic `proto.Message` state from the CoS service
-- `GetState` Gets a generic `proto.Message` state from the CoS service
-- `GetStateTyped` Gets a `typed` state from the CoS service
-
-
-### Global environment variables
-| environment variable | description | default | required |
-|--- | --- | --- | --- |
-| COS_HOST | The host of the cos server | | Y |
-| COS_PORT | The port of the cos server | | Y |
+- `GetState` Gets a `typed` state from the CoS service
 
 ## Example
 #### Using typed functions
@@ -45,16 +36,10 @@ func main() {
 
 	ctx := context.TODO()
 	entityID := "some-entity-id"
-
-	// gets cos config from environment
-	cfg, err := cos.GetConfigFromEnv()
-	if err != nil {
-		// handles the error
-		panic(err)
-	}
+	target := "localhost:9000
 
 	// create the grpc client
-	grpcClient, err := grpc.DialContext(ctx, cfg.GetTarget())
+	grpcClient, err := grpc.DialContext(ctx, target)
 	if err != nil {
 		// handles the error
 		panic(err)
@@ -68,7 +53,7 @@ func main() {
 	}
 
 	// sends a command to the cos service
-	state, metadata, err := client.ProcessCommandTyped(ctx, entityID, &fakeCommand{})
+	state, metadata, err := client.ProcessCommand(ctx, entityID, &fakeCommand{})
 	if err != nil {
 		// handles the error
 		panic(err)
@@ -78,7 +63,7 @@ func main() {
 	fmt.Println(state) // the state type will be *fakeState
 
 	// given the entity id gets the state from the cos service
-	state, metadata, err = client.GetStateTyped(ctx, entityID)
+	state, metadata, err = client.GetState(ctx, entityID)
 	if err != nil {
 		// handles the error
 		panic(err)
