@@ -1,4 +1,4 @@
-module github.com/chief-of-state/cos-go-binding
+module github.com/chief-of-state/cos-go-sdk
 
 go 1.18
 

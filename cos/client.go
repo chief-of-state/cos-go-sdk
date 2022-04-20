@@ -3,7 +3,7 @@ package cos
 import (
 	"context"
 
-	cospb "github.com/chief-of-state/cos-go-binding/gen/chief_of_state/v1"
+	cospb "github.com/chief-of-state/cos-go-sdk/gen/chief_of_state/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -14,8 +14,10 @@ import (
 
 // Client is used by both the service and the consumer implementation.
 type Client[T proto.Message] interface {
-	ProcessCommand(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error)
-	GetState(ctx context.Context, entityID string) (T, *cospb.MetaData, error)
+	ProcessCommand(ctx context.Context, entityID string, command proto.Message) (proto.Message, *cospb.MetaData, error)
+	GetState(ctx context.Context, entityID string) (proto.Message, *cospb.MetaData, error)
+	ProcessCommandTyped(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error)
+	GetStateTyped(ctx context.Context, entityID string) (T, *cospb.MetaData, error)
 }
 
 // cosClient implements the Client interface
@@ -30,8 +32,8 @@ func NewClient[T proto.Message](conn *grpc.ClientConn) (cosClient[T], error) {
 	}, nil
 }
 
-// ProcessCommand sends a command to COS and returns the resulting state and metadata
-func (c cosClient[T]) ProcessCommand(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error) {
+// ProcessCommandTyped sends a command to COS and returns the resulting state as T and metadata
+func (c cosClient[T]) ProcessCommandTyped(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error) {
 	var defaultT T
 	// require a command
 	if command == nil {
@@ -63,8 +65,8 @@ func (c cosClient[T]) ProcessCommand(ctx context.Context, entityID string, comma
 	return resultingState, response.GetMeta(), nil
 }
 
-// GetState retrieves the current state of an entity and its metadata
-func (c cosClient[T]) GetState(ctx context.Context, entityID string) (T, *cospb.MetaData, error) {
+// GetStateTyped retrieves the current state as T of an entity and its metadata
+func (c cosClient[T]) GetStateTyped(ctx context.Context, entityID string) (T, *cospb.MetaData, error) {
 	var defaultT T
 	// call CoS
 	response, err := c.remote.GetState(ctx, &cospb.GetStateRequest{EntityId: entityID})
@@ -85,6 +87,69 @@ func (c cosClient[T]) GetState(ctx context.Context, entityID string) (T, *cospb.
 
 	// unpack the resulting state
 	resultingState, err := unpackState[T](response.GetState())
+	if err != nil {
+		return defaultT, nil, err
+	}
+
+	// return
+	return resultingState, response.GetMeta(), nil
+}
+
+// ProcessCommandTyped sends a command to COS and returns the resulting state as T and metadata
+func (c cosClient[T]) ProcessCommand(ctx context.Context, entityID string, command proto.Message) (proto.Message, *cospb.MetaData, error) {
+	var defaultT T
+	// require a command
+	if command == nil {
+		return defaultT, nil, status.Error(codes.Internal, "command is missing")
+	}
+
+	// pack command into Any
+	cmdAny, _ := anypb.New(command)
+
+	// construct COS request
+	request := &cospb.ProcessCommandRequest{
+		EntityId: entityID,
+		Command:  cmdAny,
+	}
+
+	// call COS get response
+	response, err := c.remote.ProcessCommand(ctx, request)
+	if err != nil {
+		return defaultT, nil, err
+	}
+
+	// unpack the resulting state
+	resultingState, err := response.GetState().UnmarshalNew()
+	if err != nil {
+		return defaultT, nil, err
+	}
+
+	// return the company and the metadata
+	return resultingState, response.GetMeta(), nil
+}
+
+// GetStateTyped retrieves the current state as T of an entity and its metadata
+func (c cosClient[T]) GetState(ctx context.Context, entityID string) (proto.Message, *cospb.MetaData, error) {
+	var defaultT T
+	// call CoS
+	response, err := c.remote.GetState(ctx, &cospb.GetStateRequest{EntityId: entityID})
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			if e.Code() == codes.NotFound {
+				return defaultT, nil, nil
+			}
+		}
+
+		return defaultT, nil, err
+	}
+
+	// handle nil response like a NOT_FOUND
+	if response == nil {
+		return defaultT, nil, nil
+	}
+
+	// unpack the resulting state
+	resultingState, err := response.GetState().UnmarshalNew()
 	if err != nil {
 		return defaultT, nil, err
 	}
