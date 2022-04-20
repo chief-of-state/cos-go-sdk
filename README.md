@@ -3,6 +3,11 @@
 
 Chief of State go SDK provides an easy way to create and use the a Chief-of-State client in Golang.
 
+## Usage
+```bash
+$ go get -u github.com/chief-of-state/cos-go-sdk
+```
+
 ## Features
 With the cos-go-sdk, one can:
 - Create a typed chief-of-state client.
