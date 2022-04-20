@@ -14,13 +14,13 @@ import (
 
 // CosClient implements the Client interface
 type CosClient[T proto.Message] struct {
-	remote cospb.ChiefOfStateServiceClient
+	Remote cospb.ChiefOfStateServiceClient
 }
 
 // NewClient creates a new instance of Client
 func NewClient[T proto.Message](conn *grpc.ClientConn) (CosClient[T], error) {
 	return CosClient[T]{
-		remote: cospb.NewChiefOfStateServiceClient(conn),
+		Remote: cospb.NewChiefOfStateServiceClient(conn),
 	}, nil
 }
 
@@ -44,7 +44,7 @@ func (c CosClient[T]) ProcessCommand(ctx context.Context, entityID string, comma
 	}
 
 	// call COS get response
-	response, err := c.remote.ProcessCommand(ctx, request)
+	response, err := c.Remote.ProcessCommand(ctx, request)
 	if err != nil {
 		return defaultT, nil, err
 	}
@@ -65,7 +65,7 @@ func (c CosClient[T]) ProcessCommand(ctx context.Context, entityID string, comma
 func (c CosClient[T]) GetState(ctx context.Context, entityID string) (T, *cospb.MetaData, error) {
 	var defaultT T
 	// call CoS
-	response, err := c.remote.GetState(ctx, &cospb.GetStateRequest{EntityId: entityID})
+	response, err := c.Remote.GetState(ctx, &cospb.GetStateRequest{EntityId: entityID})
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.NotFound {
