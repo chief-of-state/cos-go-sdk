@@ -12,8 +12,8 @@ code:
     RUN go mod download -x
     # copy code
     COPY --dir cos .
-    COPY --dir gen .
-    COPY --dir mocks .
+    COPY --dir cospb .
+    COPY --dir cosmocks .
 
 vendor:
     FROM +code
@@ -52,16 +52,21 @@ protogen:
             --path protos/chief-of-state-protos/chief_of_state/v1
 
     # save artifact to
-    SAVE ARTIFACT gen gen AS LOCAL gen
+    SAVE ARTIFACT gen gen AS LOCAL cospb
 
 mock:
-    # copy in the necessary files that need mock generated code
-    FROM +code
+    FROM +golang-base
+
+    # download deps
+    COPY go.mod go.sum .
+    RUN go mod download -x
+    # copy code
+    COPY --dir cospb .
 
 	# generates chief of state mocks
-	RUN mockery --all --keeptree --dir ./gen/chief_of_state --output ./mocks/gen/chief_of_state --case snake
+	RUN mockery --all --keeptree --dir ./cospb/chief_of_state --output ./cosmocks/cospb/chief_of_state --case snake
 
-    SAVE ARTIFACT ./mocks mocks AS LOCAL mocks
+    SAVE ARTIFACT ./cosmocks cosmocks AS LOCAL cosmocks
 
 golang-base:
     FROM golang:1.18.0-alpine

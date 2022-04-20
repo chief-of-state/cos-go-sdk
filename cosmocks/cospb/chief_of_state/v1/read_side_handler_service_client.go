@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	chief_of_statev1 "github.com/chief-of-state/cos-go-sdk/gen/chief_of_state/v1"
+	chief_of_statev1 "github.com/chief-of-state/cos-go-sdk/cospb/chief_of_state/v1"
 
 	grpc "google.golang.org/grpc"
 
