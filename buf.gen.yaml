@@ -3,7 +3,7 @@ managed:
   enabled: true
   optimize_for: CODE_SIZE
   go_package_prefix:
-    default: github.com/cos-go-sdk/helloworld/v1
+    default: github.com/cos-go-sdk
 plugins:
   - name: go
     out: gen

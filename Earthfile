@@ -48,7 +48,6 @@ protogen:
     # generate the pbs
     RUN buf generate \
             --template buf.gen.yaml \
-            --path protos/internal/helloworld \
             --path protos/chief-of-state-protos/chief_of_state/v1
 
     # save artifact to
@@ -62,9 +61,11 @@ mock:
     RUN go mod download -x
     # copy code
     COPY --dir cospb .
+    # TODO: Turn back on when vektra/mockery fixes generics for interfaces
+    # COPY --dir cos/client.go .
 
 	# generates chief of state mocks
-	RUN mockery --all --dir ./cospb/chief_of_state --output ./cosmocks --case snake
+	RUN mockery --all --output ./cosmocks --case snake
 
     SAVE ARTIFACT ./cosmocks cosmocks AS LOCAL cosmocks
 

@@ -28,16 +28,6 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// mock a proto.Message state
-type fakeState struct{}
-
-func (*fakeState) ProtoReflect() protoreflect.Message { return nil }
-
-// mock a proto.Message command
-type fakeCommand struct{}
-
-func (*fakeCommand) ProtoReflect() protoreflect.Message { return nil }
-
 func main() {
 
 	ctx := context.TODO()

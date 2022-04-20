@@ -12,6 +12,18 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// ClientIFace is the interface for a cos client
+type ClientIFace[T proto.Message] interface {
+	// ProcessCommand sends a command to COS and returns the resulting state as T and metadata.
+	// The returned error can either be a gRPC error or casting error
+	// gRPC status codes: https://grpc.github.io/grpc/core/md_doc_statuscodes.html
+	ProcessCommand(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error)
+	// GetState retrieves the current state as T of an entity and its metadata
+	// The returned error can either be a gRPC error or casting error
+	// gRPC status codes: https://grpc.github.io/grpc/core/md_doc_statuscodes.html
+	GetState(ctx context.Context, entityID string) (T, *cospb.MetaData, error)
+}
+
 // CosClient implements the Client interface
 type CosClient[T proto.Message] struct {
 	Remote cospb.ChiefOfStateServiceClient
