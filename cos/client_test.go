@@ -31,195 +31,6 @@ type clientSuite struct {
 func TestClient(t *testing.T) {
 	suite.Run(t, new(clientSuite))
 }
-func (s *clientSuite) TestProcessCommandTyped() {
-	s.Run("with nil command", func() {
-		// create the remote client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockCos := CosClient[*helloworldv1.HelloRequest]{remote: mockRemoteClient}
-		state, meta, err := mockCos.ProcessCommandTyped(context.TODO(), uuid.NewString(), nil)
-		expectedError := status.Error(codes.Internal, "command is missing")
-		s.Assert().Nil(state)
-		s.Assert().Nil(meta)
-		s.Assert().EqualError(err, expectedError.Error())
-	})
-	s.Run("with happy path", func() {
-		ctx := context.TODO()
-		// create the various ID
-		now := timestamppb.Now()
-		entityID := "foo"
-		// create the current state
-		currentState := &helloworldv1.HelloReply{}
-		anypbState, err := anypb.New(currentState)
-		s.Assert().NoError(err)
-		cosMeta := &cospb.MetaData{
-			EntityId:       entityID,
-			RevisionNumber: 1,
-			RevisionDate:   now,
-		}
-		// create the process command response
-		cosResp := &cospb.ProcessCommandResponse{State: anypbState, Meta: cosMeta}
-		// create the remote client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(cosResp, nil)
-		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
-		cmd := &helloworldv1.HelloRequest{}
-		state, meta, err := mockCos.ProcessCommandTyped(ctx, entityID, cmd)
-		s.Assert().NoError(err)
-		s.Assert().NotNil(meta)
-		s.Assert().NotNil(state)
-		s.Assert().True(proto.Equal(currentState, state))
-		s.Assert().True(proto.Equal(cosMeta, meta))
-		mockRemoteClient.AssertExpectations(s.T())
-	})
-	s.Run("with remote client failure", func() {
-		ctx := context.TODO()
-		pollID := uuid.NewString()
-
-		// create the remote client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(nil, status.Error(codes.Internal, ""))
-		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
-		cmd := &helloworldv1.HelloRequest{}
-		state, meta, err := mockCos.ProcessCommandTyped(ctx, pollID, cmd)
-		s.Assert().Error(err)
-		s.Assert().Nil(meta)
-		s.Assert().Nil(state)
-		mockRemoteClient.AssertExpectations(s.T())
-	})
-	s.Run("with invalid state returned", func() {
-		ctx := context.TODO()
-		// create the various ID
-		communityID := uuid.NewString()
-		now := timestamppb.Now()
-		anypbState, err := anypb.New(wrapperspb.String("not a valid state"))
-		s.Assert().NoError(err)
-		cosMeta := &cospb.MetaData{
-			EntityId:       communityID,
-			RevisionNumber: 2,
-			RevisionDate:   now,
-		}
-		// create the process command response
-		cosResp := &cospb.ProcessCommandResponse{State: anypbState, Meta: cosMeta}
-		// create the remote client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(cosResp, nil)
-		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
-		cmd := &helloworldv1.HelloRequest{}
-		state, meta, err := mockCos.ProcessCommandTyped(ctx, communityID, cmd)
-		s.Assert().Error(err)
-		s.Assert().Nil(meta)
-		s.Assert().Nil(state)
-		mockRemoteClient.AssertExpectations(s.T())
-	})
-}
-func (s *clientSuite) TestGetStateTyped() {
-	s.Run("with happy path", func() {
-		ctx := context.TODO()
-		pollID := uuid.NewString()
-		now := timestamppb.Now()
-		// create the current state
-		currentState := &helloworldv1.HelloReply{}
-		anypbState, err := anypb.New(currentState)
-		s.Assert().NoError(err)
-		s.Assert().NotNil(anypbState)
-		cosMeta := &cospb.MetaData{
-			EntityId:       pollID,
-			RevisionNumber: 2,
-			RevisionDate:   now,
-		}
-		// create the process command response
-		cosResp := &cospb.GetStateResponse{State: anypbState, Meta: cosMeta}
-		// create the client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
-		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
-		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
-		s.Assert().NoError(err)
-		s.Assert().NotNil(meta)
-		s.Assert().NotNil(state)
-		s.Assert().True(proto.Equal(currentState, state))
-		s.Assert().True(proto.Equal(cosMeta, meta))
-		mockRemoteClient.AssertExpectations(s.T())
-	})
-	s.Run("with CoS failure", func() {
-		ctx := context.TODO()
-		pollID := uuid.NewString()
-		// create the current state
-		currentState := &helloworldv1.HelloReply{}
-		anypbState, err := anypb.New(currentState)
-		s.Assert().NoError(err)
-		s.Assert().NotNil(anypbState)
-		// create the remote client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.Unavailable, ""))
-		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
-		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
-		s.Assert().Error(err)
-		s.Assert().Nil(meta)
-		s.Assert().Nil(state)
-		mockRemoteClient.AssertExpectations(s.T())
-	})
-	s.Run("with invalid state", func() {
-		ctx := context.TODO()
-		pollID := uuid.NewString()
-		now := timestamppb.Now()
-		// create the current state
-		anypbState, err := anypb.New(wrapperspb.String("not a valid state"))
-		s.Assert().NoError(err)
-		s.Assert().NotNil(anypbState)
-		s.Assert().NoError(err)
-		s.Assert().NotNil(anypbState)
-		cosMeta := &cospb.MetaData{
-			EntityId:       pollID,
-			RevisionNumber: 2,
-			RevisionDate:   now,
-		}
-		// create the process command response
-		cosResp := &cospb.GetStateResponse{State: anypbState, Meta: cosMeta}
-		// create the remote client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
-		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
-		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
-		s.Assert().Error(err)
-		s.Assert().Nil(meta)
-		s.Assert().Nil(state)
-		mockRemoteClient.AssertExpectations(s.T())
-	})
-	s.Run("with not found", func() {
-		ctx := context.TODO()
-		pollID := uuid.NewString()
-		// create the remote client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.NotFound, "state not found"))
-		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
-		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
-		s.Assert().NoError(err)
-		s.Assert().Nil(meta)
-		s.Assert().Nil(state)
-		mockRemoteClient.AssertExpectations(s.T())
-	})
-	s.Run("with nil response", func() {
-		ctx := context.TODO()
-		pollID := uuid.NewString()
-		// create the remote client
-		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, nil)
-		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
-		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
-		s.Assert().NoError(err)
-		s.Assert().Nil(meta)
-		s.Assert().Nil(state)
-		mockRemoteClient.AssertExpectations(s.T())
-	})
-}
 func (s *clientSuite) TestProcessCommand() {
 	s.Run("with nil command", func() {
 		// create the remote client
@@ -277,6 +88,32 @@ func (s *clientSuite) TestProcessCommand() {
 		s.Assert().Nil(state)
 		mockRemoteClient.AssertExpectations(s.T())
 	})
+	s.Run("with invalid state returned", func() {
+		ctx := context.TODO()
+		// create the various ID
+		communityID := uuid.NewString()
+		now := timestamppb.Now()
+		anypbState, err := anypb.New(wrapperspb.String("not a valid state"))
+		s.Assert().NoError(err)
+		cosMeta := &cospb.MetaData{
+			EntityId:       communityID,
+			RevisionNumber: 2,
+			RevisionDate:   now,
+		}
+		// create the process command response
+		cosResp := &cospb.ProcessCommandResponse{State: anypbState, Meta: cosMeta}
+		// create the remote client
+		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
+		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(cosResp, nil)
+		// create the CoS client
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		cmd := &helloworldv1.HelloRequest{}
+		state, meta, err := mockCos.ProcessCommand(ctx, communityID, cmd)
+		s.Assert().Error(err)
+		s.Assert().Nil(meta)
+		s.Assert().Nil(state)
+		mockRemoteClient.AssertExpectations(s.T())
+	})
 }
 func (s *clientSuite) TestGetState() {
 	s.Run("with happy path", func() {
@@ -318,6 +155,34 @@ func (s *clientSuite) TestGetState() {
 		// create the remote client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.Unavailable, ""))
+		// create the CoS client
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		state, meta, err := mockCos.GetState(ctx, pollID)
+		s.Assert().Error(err)
+		s.Assert().Nil(meta)
+		s.Assert().Nil(state)
+		mockRemoteClient.AssertExpectations(s.T())
+	})
+	s.Run("with invalid state", func() {
+		ctx := context.TODO()
+		pollID := uuid.NewString()
+		now := timestamppb.Now()
+		// create the current state
+		anypbState, err := anypb.New(wrapperspb.String("not a valid state"))
+		s.Assert().NoError(err)
+		s.Assert().NotNil(anypbState)
+		s.Assert().NoError(err)
+		s.Assert().NotNil(anypbState)
+		cosMeta := &cospb.MetaData{
+			EntityId:       pollID,
+			RevisionNumber: 2,
+			RevisionDate:   now,
+		}
+		// create the process command response
+		cosResp := &cospb.GetStateResponse{State: anypbState, Meta: cosMeta}
+		// create the remote client
+		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
+		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
 		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		state, meta, err := mockCos.GetState(ctx, pollID)
