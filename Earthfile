@@ -64,7 +64,7 @@ mock:
     COPY --dir cospb .
 
 	# generates chief of state mocks
-	RUN mockery --all --keeptree --dir ./cospb/chief_of_state --output ./cosmocks/cospb/chief_of_state --case snake
+	RUN mockery --all --dir ./cospb/chief_of_state --output ./cosmocks --case snake
 
     SAVE ARTIFACT ./cosmocks cosmocks AS LOCAL cosmocks
 

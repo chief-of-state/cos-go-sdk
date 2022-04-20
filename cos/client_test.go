@@ -5,7 +5,7 @@ import (
 	"net"
 	"testing"
 
-	mocks "github.com/chief-of-state/cos-go-sdk/cosmocks/cospb/chief_of_state/v1"
+	mocks "github.com/chief-of-state/cos-go-sdk/cosmocks"
 	cospb "github.com/chief-of-state/cos-go-sdk/cospb/chief_of_state/v1"
 	helloworldv1 "github.com/chief-of-state/cos-go-sdk/cospb/helloworld/v1"
 	"github.com/google/uuid"
