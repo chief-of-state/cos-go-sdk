@@ -19,40 +19,69 @@ With the cos-go-binding, one can:
 ## Example
 
 ```
-ctx := context.TODO()
-entityID := "some-entity-id"
+import (
+	"context"
+	"fmt"
 
-// gets cos config from environment
-cfg, err := cos.GetConfigFromEnv()
-if err != nil {
-	// handles the error
-	panic(err)
-}
+	"github.com/chief-of-state/cos-go-binding/cos"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/reflect/protoreflect"
+)
 
-// creates the client
-client, err := cos.NewClient[*someProtobufType](ctx, cfg.CosHost, cfg.CosPort)
-if err != nil {
-	// handles the error
-	panic(err)
-}
+// mock a proto.Message state
+type fakeState struct{}
 
-// sends a command to the cos service
-state, metadata, err := client.ProcessCommand(ctx, entityID, &someRequest{})
-if err != nil {
-	// handles the error
-	panic(err)
-}
-// prints the metadata and resulting state
-fmt.Println(metadata)
-fmt.Println(state) // the state type will be *someProtobufType
+func (*fakeState) ProtoReflect() protoreflect.Message { return nil }
 
-// given the entity id gets the state from the cos service
-state, metadata, err = client.GetState(ctx, entityID)
-if err != nil {
-	// handles the error
-	panic(err)
+// mock a proto.Message command
+type fakeCommand struct{}
+
+func (*fakeCommand) ProtoReflect() protoreflect.Message { return nil }
+
+func main() {
+
+	ctx := context.TODO()
+	entityID := "some-entity-id"
+
+	// gets cos config from environment
+	cfg, err := cos.GetConfigFromEnv()
+	if err != nil {
+		// handles the error
+		panic(err)
+	}
+
+	// create the grpc client
+	grpcClient, err := grpc.DialContext(ctx, cfg.GetTarget())
+	if err != nil {
+		// handles the error
+		panic(err)
+	}
+
+	// creates the client
+	client, err := cos.NewClient[*fakeState](grpcClient)
+	if err != nil {
+		// handles the error
+		panic(err)
+	}
+
+	// sends a command to the cos service
+	state, metadata, err := client.ProcessCommand(ctx, entityID, &fakeCommand{})
+	if err != nil {
+		// handles the error
+		panic(err)
+	}
+	// prints the metadata and resulting state
+	fmt.Println(metadata)
+	fmt.Println(state) // the state type will be *fakeState
+
+	// given the entity id gets the state from the cos service
+	state, metadata, err = client.GetState(ctx, entityID)
+	if err != nil {
+		// handles the error
+		panic(err)
+	}
+	// prints the metadata and resulting state
+	fmt.Println(metadata)
+	fmt.Println(state) // the state type will be *fakeState
 }
-// prints the metadata and resulting state
-fmt.Println(metadata)
-fmt.Println(state) // the state type will be *someProtobufType
 ```

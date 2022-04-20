@@ -1,6 +1,10 @@
 package cos
 
-import "github.com/caarlos0/env/v6"
+import (
+	"fmt"
+
+	"github.com/caarlos0/env/v6"
+)
 
 // Config is used to make a call to CoS
 type Config struct {
@@ -18,4 +22,9 @@ func GetConfigFromEnv() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+// GetTarget returns the cos target
+func (c *Config) GetTarget() string {
+	return fmt.Sprintf("%s:%v", c.CosHost, c.CosPort)
 }

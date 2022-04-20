@@ -2,6 +2,7 @@ package cos
 
 import (
 	"context"
+	"net"
 	"testing"
 
 	cospb "github.com/chief-of-state/cos-go-binding/gen/chief_of_state/v1"
@@ -10,8 +11,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -221,9 +224,18 @@ func (s *clientSuite) TestNewClient() {
 	s.Run("happy path", func() {
 		// create a context
 		ctx := context.TODO()
+		listen := bufconn.Listen(1024 * 1024)
+		target := "bufnet"
+		grpcClient, err := grpc.DialContext(
+			ctx,
+			target,
+			grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) { return listen.Dial() }),
+			grpc.WithInsecure(),
+		)
+		s.Assert().NoError(err)
 		// this will work because grpc connection won't wait for connections to be
 		// established, and connecting happens in the background
-		cosClient, err := NewClient[*helloworldv1.HelloReply](ctx, "localhost", 50051)
+		cosClient, err := NewClient[*helloworldv1.HelloReply](grpcClient)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(cosClient)
 	})

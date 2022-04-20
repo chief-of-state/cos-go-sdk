@@ -2,10 +2,9 @@ package cos
 
 import (
 	"context"
-	"fmt"
 
 	cospb "github.com/chief-of-state/cos-go-binding/gen/chief_of_state/v1"
-	"github.com/chief-of-state/cos-go-binding/grpcclient"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -25,8 +24,7 @@ type cosClient[T proto.Message] struct {
 }
 
 // NewClient creates a new instance of Client
-func NewClient[T proto.Message](ctx context.Context, cosHost string, cosPort int) (Client[T], error) {
-	conn := grpcclient.GetClientConn(ctx, fmt.Sprintf("%v:%v", cosHost, cosPort))
+func NewClient[T proto.Message](conn *grpc.ClientConn) (cosClient[T], error) {
 	return cosClient[T]{
 		remote: cospb.NewChiefOfStateServiceClient(conn),
 	}, nil
