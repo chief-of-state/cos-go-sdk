@@ -68,7 +68,6 @@ golang-base:
     FROM golang:1.18.0-alpine
 
     WORKDIR /app
-    ARG VERSION=dev
 
     # install gcc dependencies into alpine for CGO
     RUN apk add gcc musl-dev curl git openssh
