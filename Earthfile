@@ -13,11 +13,6 @@ code:
     # copy code
     COPY --dir +protogen/gen ./gen
     COPY --dir cos .
-    COPY --dir grpcclient .
-    COPY --dir grpcinterceptors .
-    COPY --dir grpctesting .
-    COPY --dir logging .
-    COPY --dir requestid .
 
 vendor:
     FROM +code
