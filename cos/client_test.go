@@ -35,7 +35,7 @@ func (s *clientSuite) TestProcessCommandTyped() {
 	s.Run("with nil command", func() {
 		// create the remote client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockCos := cosClient[*helloworldv1.HelloRequest]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloRequest]{remote: mockRemoteClient}
 		state, meta, err := mockCos.ProcessCommandTyped(context.TODO(), uuid.NewString(), nil)
 		expectedError := status.Error(codes.Internal, "command is missing")
 		s.Assert().Nil(state)
@@ -62,7 +62,7 @@ func (s *clientSuite) TestProcessCommandTyped() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		cmd := &helloworldv1.HelloRequest{}
 		state, meta, err := mockCos.ProcessCommandTyped(ctx, entityID, cmd)
 		s.Assert().NoError(err)
@@ -80,7 +80,7 @@ func (s *clientSuite) TestProcessCommandTyped() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(nil, status.Error(codes.Internal, ""))
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		cmd := &helloworldv1.HelloRequest{}
 		state, meta, err := mockCos.ProcessCommandTyped(ctx, pollID, cmd)
 		s.Assert().Error(err)
@@ -106,7 +106,7 @@ func (s *clientSuite) TestProcessCommandTyped() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		cmd := &helloworldv1.HelloRequest{}
 		state, meta, err := mockCos.ProcessCommandTyped(ctx, communityID, cmd)
 		s.Assert().Error(err)
@@ -134,7 +134,7 @@ func (s *clientSuite) TestGetStateTyped() {
 		cosResp := &cospb.GetStateResponse{State: anypbState, Meta: cosMeta}
 		// create the client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
 		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
 		s.Assert().NoError(err)
@@ -156,7 +156,7 @@ func (s *clientSuite) TestGetStateTyped() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.Unavailable, ""))
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
@@ -184,7 +184,7 @@ func (s *clientSuite) TestGetStateTyped() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
@@ -198,7 +198,7 @@ func (s *clientSuite) TestGetStateTyped() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.NotFound, "state not found"))
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
 		s.Assert().NoError(err)
 		s.Assert().Nil(meta)
@@ -212,7 +212,7 @@ func (s *clientSuite) TestGetStateTyped() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, nil)
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		state, meta, err := mockCos.GetStateTyped(ctx, pollID)
 		s.Assert().NoError(err)
 		s.Assert().Nil(meta)
@@ -224,7 +224,7 @@ func (s *clientSuite) TestProcessCommand() {
 	s.Run("with nil command", func() {
 		// create the remote client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockCos := cosClient[*helloworldv1.HelloRequest]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloRequest]{remote: mockRemoteClient}
 		state, meta, err := mockCos.ProcessCommand(context.TODO(), uuid.NewString(), nil)
 		expectedError := status.Error(codes.Internal, "command is missing")
 		s.Assert().Nil(state)
@@ -251,7 +251,7 @@ func (s *clientSuite) TestProcessCommand() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		cmd := &helloworldv1.HelloRequest{}
 		state, meta, err := mockCos.ProcessCommand(ctx, entityID, cmd)
 		s.Assert().NoError(err)
@@ -269,7 +269,7 @@ func (s *clientSuite) TestProcessCommand() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(nil, status.Error(codes.Internal, ""))
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		cmd := &helloworldv1.HelloRequest{}
 		state, meta, err := mockCos.ProcessCommand(ctx, pollID, cmd)
 		s.Assert().Error(err)
@@ -297,7 +297,7 @@ func (s *clientSuite) TestGetState() {
 		cosResp := &cospb.GetStateResponse{State: anypbState, Meta: cosMeta}
 		// create the client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().NoError(err)
@@ -319,7 +319,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.Unavailable, ""))
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
@@ -333,7 +333,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.NotFound, "state not found"))
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().NoError(err)
 		s.Assert().Nil(meta)
@@ -347,7 +347,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, nil)
 		// create the CoS client
-		mockCos := cosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
+		mockCos := CosClient[*helloworldv1.HelloReply]{remote: mockRemoteClient}
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().NoError(err)
 		s.Assert().Nil(meta)

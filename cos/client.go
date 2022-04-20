@@ -12,28 +12,20 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// Client is used by both the service and the consumer implementation.
-type Client[T proto.Message] interface {
-	ProcessCommand(ctx context.Context, entityID string, command proto.Message) (proto.Message, *cospb.MetaData, error)
-	GetState(ctx context.Context, entityID string) (proto.Message, *cospb.MetaData, error)
-	ProcessCommandTyped(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error)
-	GetStateTyped(ctx context.Context, entityID string) (T, *cospb.MetaData, error)
-}
-
-// cosClient implements the Client interface
-type cosClient[T proto.Message] struct {
+// CosClient implements the Client interface
+type CosClient[T proto.Message] struct {
 	remote cospb.ChiefOfStateServiceClient
 }
 
 // NewClient creates a new instance of Client
-func NewClient[T proto.Message](conn *grpc.ClientConn) (cosClient[T], error) {
-	return cosClient[T]{
+func NewClient[T proto.Message](conn *grpc.ClientConn) (CosClient[T], error) {
+	return CosClient[T]{
 		remote: cospb.NewChiefOfStateServiceClient(conn),
 	}, nil
 }
 
 // ProcessCommandTyped sends a command to COS and returns the resulting state as T and metadata
-func (c cosClient[T]) ProcessCommandTyped(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error) {
+func (c CosClient[T]) ProcessCommandTyped(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error) {
 	var defaultT T
 	// require a command
 	if command == nil {
@@ -66,7 +58,7 @@ func (c cosClient[T]) ProcessCommandTyped(ctx context.Context, entityID string, 
 }
 
 // GetStateTyped retrieves the current state as T of an entity and its metadata
-func (c cosClient[T]) GetStateTyped(ctx context.Context, entityID string) (T, *cospb.MetaData, error) {
+func (c CosClient[T]) GetStateTyped(ctx context.Context, entityID string) (T, *cospb.MetaData, error) {
 	var defaultT T
 	// call CoS
 	response, err := c.remote.GetState(ctx, &cospb.GetStateRequest{EntityId: entityID})
@@ -96,7 +88,7 @@ func (c cosClient[T]) GetStateTyped(ctx context.Context, entityID string) (T, *c
 }
 
 // ProcessCommandTyped sends a command to COS and returns the resulting state as T and metadata
-func (c cosClient[T]) ProcessCommand(ctx context.Context, entityID string, command proto.Message) (proto.Message, *cospb.MetaData, error) {
+func (c CosClient[T]) ProcessCommand(ctx context.Context, entityID string, command proto.Message) (proto.Message, *cospb.MetaData, error) {
 	var defaultT T
 	// require a command
 	if command == nil {
@@ -129,7 +121,7 @@ func (c cosClient[T]) ProcessCommand(ctx context.Context, entityID string, comma
 }
 
 // GetStateTyped retrieves the current state as T of an entity and its metadata
-func (c cosClient[T]) GetState(ctx context.Context, entityID string) (proto.Message, *cospb.MetaData, error) {
+func (c CosClient[T]) GetState(ctx context.Context, entityID string) (proto.Message, *cospb.MetaData, error) {
 	var defaultT T
 	// call CoS
 	response, err := c.remote.GetState(ctx, &cospb.GetStateRequest{EntityId: entityID})
