@@ -1,4 +1,3 @@
 version: v1
 directories:
-  - protos/internal
   - protos/chief-of-state-protos

@@ -7,7 +7,6 @@ import (
 
 	mocks "github.com/chief-of-state/cos-go-sdk/cosmocks"
 	cospb "github.com/chief-of-state/cos-go-sdk/cospb/chief_of_state/v1"
-	helloworldv1 "github.com/chief-of-state/cos-go-sdk/cospb/helloworld/v1"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -31,11 +30,13 @@ type clientSuite struct {
 func TestClient(t *testing.T) {
 	suite.Run(t, new(clientSuite))
 }
+
 func (s *clientSuite) TestProcessCommand() {
+
 	s.Run("with nil command", func() {
 		// create the remote client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockCos := CosClient[*helloworldv1.HelloRequest]{Remote: mockRemoteClient}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
 		state, meta, err := mockCos.ProcessCommand(context.TODO(), uuid.NewString(), nil)
 		expectedError := status.Error(codes.Internal, "command is missing")
 		s.Assert().Nil(state)
@@ -48,7 +49,7 @@ func (s *clientSuite) TestProcessCommand() {
 		now := timestamppb.Now()
 		entityID := "foo"
 		// create the current state
-		currentState := &helloworldv1.HelloReply{}
+		currentState := &wrapperspb.StringValue{}
 		anypbState, err := anypb.New(currentState)
 		s.Assert().NoError(err)
 		cosMeta := &cospb.MetaData{
@@ -62,8 +63,8 @@ func (s *clientSuite) TestProcessCommand() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{Remote: mockRemoteClient}
-		cmd := &helloworldv1.HelloRequest{}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
+		cmd := &wrapperspb.StringValue{}
 		state, meta, err := mockCos.ProcessCommand(ctx, entityID, cmd)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(meta)
@@ -80,8 +81,8 @@ func (s *clientSuite) TestProcessCommand() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(nil, status.Error(codes.Internal, ""))
 		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{Remote: mockRemoteClient}
-		cmd := &helloworldv1.HelloRequest{}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
+		cmd := &wrapperspb.StringValue{}
 		state, meta, err := mockCos.ProcessCommand(ctx, pollID, cmd)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
@@ -93,7 +94,7 @@ func (s *clientSuite) TestProcessCommand() {
 		// create the various ID
 		communityID := uuid.NewString()
 		now := timestamppb.Now()
-		anypbState, err := anypb.New(wrapperspb.String("not a valid state"))
+		anypbState, err := anypb.New(wrapperspb.Int32(100))
 		s.Assert().NoError(err)
 		cosMeta := &cospb.MetaData{
 			EntityId:       communityID,
@@ -106,8 +107,8 @@ func (s *clientSuite) TestProcessCommand() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("ProcessCommand", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{Remote: mockRemoteClient}
-		cmd := &helloworldv1.HelloRequest{}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
+		cmd := &wrapperspb.StringValue{}
 		state, meta, err := mockCos.ProcessCommand(ctx, communityID, cmd)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
@@ -121,7 +122,7 @@ func (s *clientSuite) TestGetState() {
 		pollID := uuid.NewString()
 		now := timestamppb.Now()
 		// create the current state
-		currentState := &helloworldv1.HelloReply{}
+		currentState := &wrapperspb.StringValue{}
 		anypbState, err := anypb.New(currentState)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(anypbState)
@@ -134,7 +135,7 @@ func (s *clientSuite) TestGetState() {
 		cosResp := &cospb.GetStateResponse{State: anypbState, Meta: cosMeta}
 		// create the client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
-		mockCos := CosClient[*helloworldv1.HelloReply]{Remote: mockRemoteClient}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().NoError(err)
@@ -148,7 +149,7 @@ func (s *clientSuite) TestGetState() {
 		ctx := context.TODO()
 		pollID := uuid.NewString()
 		// create the current state
-		currentState := &helloworldv1.HelloReply{}
+		currentState := &wrapperspb.StringValue{}
 		anypbState, err := anypb.New(currentState)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(anypbState)
@@ -156,7 +157,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.Unavailable, ""))
 		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{Remote: mockRemoteClient}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
@@ -168,7 +169,7 @@ func (s *clientSuite) TestGetState() {
 		pollID := uuid.NewString()
 		now := timestamppb.Now()
 		// create the current state
-		anypbState, err := anypb.New(wrapperspb.String("not a valid state"))
+		anypbState, err := anypb.New(wrapperspb.Int32(100))
 		s.Assert().NoError(err)
 		s.Assert().NotNil(anypbState)
 		s.Assert().NoError(err)
@@ -184,7 +185,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{Remote: mockRemoteClient}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
@@ -198,7 +199,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.NotFound, "state not found"))
 		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{Remote: mockRemoteClient}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().NoError(err)
 		s.Assert().Nil(meta)
@@ -212,7 +213,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, nil)
 		// create the CoS client
-		mockCos := CosClient[*helloworldv1.HelloReply]{Remote: mockRemoteClient}
+		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
 		state, meta, err := mockCos.GetState(ctx, pollID)
 		s.Assert().NoError(err)
 		s.Assert().Nil(meta)
@@ -235,7 +236,7 @@ func (s *clientSuite) TestNewClient() {
 		s.Assert().NoError(err)
 		// this will work because grpc connection won't wait for connections to be
 		// established, and connecting happens in the background
-		cosClient, err := NewClient[*helloworldv1.HelloReply](grpcClient)
+		cosClient, err := NewClient[*wrapperspb.StringValue](grpcClient)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(cosClient)
 	})
@@ -243,25 +244,25 @@ func (s *clientSuite) TestNewClient() {
 func (s *clientSuite) TestUnpackState() {
 	s.Run("happy path with Poll State", func() {
 		// create a new state
-		state := &helloworldv1.HelloReply{}
+		state := &wrapperspb.StringValue{}
 		// pack that state into any
 		any, err := anypb.New(state)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(any)
 
-		unpacked, err := unpackState[*helloworldv1.HelloReply](any)
+		unpacked, err := unpackState[*wrapperspb.StringValue](any)
 		s.Assert().NoError(err)
 		s.Assert().True(proto.Equal(state, unpacked))
 	})
 	s.Run("happy path with Vote State", func() {
 		// create a new state
-		state := &helloworldv1.HelloReply{}
+		state := &wrapperspb.StringValue{}
 		// pack that state into any
 		any, err := anypb.New(state)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(any)
 
-		unpacked, err := unpackState[*helloworldv1.HelloReply](any)
+		unpacked, err := unpackState[*wrapperspb.StringValue](any)
 		s.Assert().NoError(err)
 		s.Assert().True(proto.Equal(state, unpacked))
 	})
@@ -272,16 +273,16 @@ func (s *clientSuite) TestUnpackState() {
 		any, err := anypb.New(empty)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(any)
-		unpacked, err := unpackState[*helloworldv1.HelloReply](any)
+		unpacked, err := unpackState[*wrapperspb.StringValue](any)
 		s.Assert().NoError(err)
 		s.Assert().Nil(unpacked)
 	})
 	s.Run("with invalid state", func() {
 		// create a wrong state
-		any, err := anypb.New(wrapperspb.String("not a valid state"))
+		any, err := anypb.New(wrapperspb.Int32(100))
 		s.Assert().NoError(err)
 		s.Assert().NotNil(any)
-		unpacked, err := unpackState[*helloworldv1.HelloReply](any)
+		unpacked, err := unpackState[*wrapperspb.StringValue](any)
 		s.Assert().Error(err)
 		s.Assert().Nil(unpacked)
 	})
@@ -291,7 +292,7 @@ func (s *clientSuite) TestUnpackState() {
 			TypeUrl: "",
 			Value:   nil,
 		}
-		unpacked, err := unpackState[*helloworldv1.HelloReply](any)
+		unpacked, err := unpackState[*wrapperspb.StringValue](any)
 		s.Assert().Error(err)
 		s.Assert().Nil(unpacked)
 	})
