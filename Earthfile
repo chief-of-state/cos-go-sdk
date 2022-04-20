@@ -11,13 +11,12 @@ code:
     COPY go.mod go.sum .
     RUN go mod download -x
     # copy code
-    COPY --dir +protogen/gen ./gen
     COPY --dir cos .
+    COPY --dir gen .
+    COPY --dir mocks .
 
 vendor:
     FROM +code
-
-    COPY +mock/mocks ./mocks
 
     RUN go mod vendor
     SAVE ARTIFACT /app /files
