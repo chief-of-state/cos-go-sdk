@@ -24,7 +24,9 @@ func NewClient[T proto.Message](conn *grpc.ClientConn) (CosClient[T], error) {
 	}, nil
 }
 
-// ProcessCommand sends a command to COS and returns the resulting state as T and metadata
+// ProcessCommand sends a command to COS and returns the resulting state as T and metadata.
+// The returned error can either be a gRPC error or casting error
+// gRPC status codes: https://grpc.github.io/grpc/core/md_doc_statuscodes.html
 func (c CosClient[T]) ProcessCommand(ctx context.Context, entityID string, command proto.Message) (T, *cospb.MetaData, error) {
 	var defaultT T
 	// require a command
@@ -58,6 +60,8 @@ func (c CosClient[T]) ProcessCommand(ctx context.Context, entityID string, comma
 }
 
 // GetState retrieves the current state as T of an entity and its metadata
+// The returned error can either be a gRPC error or casting error
+// gRPC status codes: https://grpc.github.io/grpc/core/md_doc_statuscodes.html
 func (c CosClient[T]) GetState(ctx context.Context, entityID string) (T, *cospb.MetaData, error) {
 	var defaultT T
 	// call CoS
@@ -88,6 +92,7 @@ func (c CosClient[T]) GetState(ctx context.Context, entityID string) (T, *cospb.
 }
 
 // unpackState takes an any to unpack into T
+// The returned error can be a casting error
 func unpackState[T proto.Message](any *anypb.Any) (T, error) {
 	var defaultT T
 
