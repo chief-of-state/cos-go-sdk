@@ -8,6 +8,7 @@ With the cos-go-sdk, one can:
 - Create a typed chief-of-state client.
 - `ProcessCommand` Processes a generic `proto.Message` command and returns the `typed` state from the CoS service
 - `GetState` Gets a `typed` state from the CoS service
+- Test with generated mockers located in [cosmocks](cosmocks/cospb/chief_of_state/v1/)
 
 ## Example
 #### Using typed functions
