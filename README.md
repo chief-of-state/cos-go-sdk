@@ -20,39 +20,39 @@ With the cos-go-binding, one can:
 
 ```
 ctx := context.TODO()
-	entityID := "some-entity-id"
+entityID := "some-entity-id"
 
-	// gets cos config from environment
-	cfg, err := GetConfigFromEnv()
-	if err != nil {
-		// handles the error
-		panic(err)
-	}
+// gets cos config from environment
+cfg, err := cos.GetConfigFromEnv()
+if err != nil {
+	// handles the error
+	panic(err)
+}
 
-	// creates the client
-	client, err := NewClient[*helloworldv1.HelloReply](ctx, cfg.CosHost, cfg.CosPort)
-	if err != nil {
-		// handles the error
-		panic(err)
-	}
+// creates the client
+client, err := cos.NewClient[*someProtobufType](ctx, cfg.CosHost, cfg.CosPort)
+if err != nil {
+	// handles the error
+	panic(err)
+}
 
-	// sends a command to the cos service
-	state, metadata, err := client.ProcessCommand(ctx, entityID, &helloworldv1.HelloRequest{Name: "foo"})
-	if err != nil {
-		// handles the error
-		panic(err)
-	}
-	// prints the metadata and resulting state
-	fmt.Println(metadata)
-	fmt.Println(state)
+// sends a command to the cos service
+state, metadata, err := client.ProcessCommand(ctx, entityID, &someRequest{})
+if err != nil {
+	// handles the error
+	panic(err)
+}
+// prints the metadata and resulting state
+fmt.Println(metadata)
+fmt.Println(state) // the state type will be *someProtobufType
 
-	// given the entity id gets the state from the cos service
-	state, metadata, err = client.GetState(ctx, entityID)
-	if err != nil {
-		// handles the error
-		panic(err)
-	}
-	// prints the metadata and resulting state
-	fmt.Println(metadata)
-	fmt.Println(state)
+// given the entity id gets the state from the cos service
+state, metadata, err = client.GetState(ctx, entityID)
+if err != nil {
+	// handles the error
+	panic(err)
+}
+// prints the metadata and resulting state
+fmt.Println(metadata)
+fmt.Println(state) // the state type will be *someProtobufType
 ```
