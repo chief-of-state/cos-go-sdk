@@ -30,10 +30,10 @@ type CosClient[T proto.Message] struct {
 }
 
 // NewClient creates a new instance of Client
-func NewClient[T proto.Message](conn *grpc.ClientConn) (CosClient[T], error) {
+func NewClient[T proto.Message](conn *grpc.ClientConn) CosClient[T] {
 	return CosClient[T]{
 		Remote: cospb.NewChiefOfStateServiceClient(conn),
-	}, nil
+	}
 }
 
 // ProcessCommand sends a command to COS and returns the resulting state as T and metadata.

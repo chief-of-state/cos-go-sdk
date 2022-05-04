@@ -236,8 +236,7 @@ func (s *clientSuite) TestNewClient() {
 		s.Assert().NoError(err)
 		// this will work because grpc connection won't wait for connections to be
 		// established, and connecting happens in the background
-		cosClient, err := NewClient[*wrapperspb.StringValue](grpcClient)
-		s.Assert().NoError(err)
+		cosClient := NewClient[*wrapperspb.StringValue](grpcClient)
 		s.Assert().NotNil(cosClient)
 	})
 }
