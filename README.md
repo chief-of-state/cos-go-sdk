@@ -42,11 +42,7 @@ func main() {
 	}
 
 	// creates the client
-	client, err := cos.NewClient[*fakeState](grpcClient)
-	if err != nil {
-		// handles the error
-		panic(err)
-	}
+	client := cos.NewClient[*fakeState](grpcClient)
 
 	// sends a command to the cos service
 	state, metadata, err := client.ProcessCommand(ctx, entityID, &fakeCommand{})
