@@ -75,7 +75,7 @@ func (s *clientSuite) TestProcessCommand() {
 	})
 	s.Run("with remote client failure", func() {
 		ctx := context.TODO()
-		pollID := uuid.NewString()
+		id := uuid.NewString()
 
 		// create the remote client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
@@ -83,7 +83,7 @@ func (s *clientSuite) TestProcessCommand() {
 		// create the CoS client
 		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
 		cmd := &wrapperspb.StringValue{}
-		state, meta, err := mockCos.ProcessCommand(ctx, pollID, cmd)
+		state, meta, err := mockCos.ProcessCommand(ctx, id, cmd)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
 		s.Assert().Nil(state)
@@ -119,7 +119,7 @@ func (s *clientSuite) TestProcessCommand() {
 func (s *clientSuite) TestGetState() {
 	s.Run("with happy path", func() {
 		ctx := context.TODO()
-		pollID := uuid.NewString()
+		id := uuid.NewString()
 		now := timestamppb.Now()
 		// create the current state
 		currentState := &wrapperspb.StringValue{}
@@ -127,7 +127,7 @@ func (s *clientSuite) TestGetState() {
 		s.Assert().NoError(err)
 		s.Assert().NotNil(anypbState)
 		cosMeta := &cospb.MetaData{
-			EntityId:       pollID,
+			EntityId:       id,
 			RevisionNumber: 2,
 			RevisionDate:   now,
 		}
@@ -137,7 +137,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
-		state, meta, err := mockCos.GetState(ctx, pollID)
+		state, meta, err := mockCos.GetState(ctx, id)
 		s.Assert().NoError(err)
 		s.Assert().NotNil(meta)
 		s.Assert().NotNil(state)
@@ -147,7 +147,7 @@ func (s *clientSuite) TestGetState() {
 	})
 	s.Run("with CoS failure", func() {
 		ctx := context.TODO()
-		pollID := uuid.NewString()
+		id := uuid.NewString()
 		// create the current state
 		currentState := &wrapperspb.StringValue{}
 		anypbState, err := anypb.New(currentState)
@@ -158,7 +158,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.Unavailable, ""))
 		// create the CoS client
 		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
-		state, meta, err := mockCos.GetState(ctx, pollID)
+		state, meta, err := mockCos.GetState(ctx, id)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
 		s.Assert().Nil(state)
@@ -166,7 +166,7 @@ func (s *clientSuite) TestGetState() {
 	})
 	s.Run("with invalid state", func() {
 		ctx := context.TODO()
-		pollID := uuid.NewString()
+		id := uuid.NewString()
 		now := timestamppb.Now()
 		// create the current state
 		anypbState, err := anypb.New(wrapperspb.Int32(100))
@@ -175,7 +175,7 @@ func (s *clientSuite) TestGetState() {
 		s.Assert().NoError(err)
 		s.Assert().NotNil(anypbState)
 		cosMeta := &cospb.MetaData{
-			EntityId:       pollID,
+			EntityId:       id,
 			RevisionNumber: 2,
 			RevisionDate:   now,
 		}
@@ -186,7 +186,7 @@ func (s *clientSuite) TestGetState() {
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(cosResp, nil)
 		// create the CoS client
 		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
-		state, meta, err := mockCos.GetState(ctx, pollID)
+		state, meta, err := mockCos.GetState(ctx, id)
 		s.Assert().Error(err)
 		s.Assert().Nil(meta)
 		s.Assert().Nil(state)
@@ -194,13 +194,13 @@ func (s *clientSuite) TestGetState() {
 	})
 	s.Run("with not found", func() {
 		ctx := context.TODO()
-		pollID := uuid.NewString()
+		id := uuid.NewString()
 		// create the remote client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, status.Error(codes.NotFound, "state not found"))
 		// create the CoS client
 		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
-		state, meta, err := mockCos.GetState(ctx, pollID)
+		state, meta, err := mockCos.GetState(ctx, id)
 		s.Assert().NoError(err)
 		s.Assert().Nil(meta)
 		s.Assert().Nil(state)
@@ -208,13 +208,13 @@ func (s *clientSuite) TestGetState() {
 	})
 	s.Run("with nil response", func() {
 		ctx := context.TODO()
-		pollID := uuid.NewString()
+		id := uuid.NewString()
 		// create the remote client
 		mockRemoteClient := &mocks.ChiefOfStateServiceClient{}
 		mockRemoteClient.On("GetState", ctx, mock.Anything).Return(nil, nil)
 		// create the CoS client
 		mockCos := CosClient[*wrapperspb.StringValue]{Remote: mockRemoteClient}
-		state, meta, err := mockCos.GetState(ctx, pollID)
+		state, meta, err := mockCos.GetState(ctx, id)
 		s.Assert().NoError(err)
 		s.Assert().Nil(meta)
 		s.Assert().Nil(state)

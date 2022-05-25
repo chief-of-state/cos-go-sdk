@@ -62,7 +62,7 @@ mock:
     # copy code
     COPY --dir cospb .
     # TODO: Turn back on when vektra/mockery fixes generics for interfaces
-    # COPY --dir cos/client.go .
+    COPY --dir cos/client.go .
 
 	# generates chief of state mocks
 	RUN mockery --all --output ./cosmocks --case snake
@@ -87,7 +87,7 @@ golang-base:
     RUN export PATH="$PATH:$(go env GOPATH)/bin"
 
     # install vektra/mockery
-    RUN go install github.com/vektra/mockery/v2@v2.11.0
+    RUN go install github.com/vektra/mockery/v2@v2.13.0-beta.1
 
     # install buf from source
     RUN GO111MODULE=on GOBIN=/usr/local/bin go install github.com/bufbuild/buf/cmd/buf@v1.3.1
