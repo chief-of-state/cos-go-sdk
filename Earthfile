@@ -90,7 +90,7 @@ golang-base:
     RUN go install github.com/vektra/mockery/v2@v2.13.0-beta.1
 
     # install buf from source
-    RUN GO111MODULE=on GOBIN=/usr/local/bin go install github.com/bufbuild/buf/cmd/buf@v1.
+    RUN GO111MODULE=on GOBIN=/usr/local/bin go install github.com/bufbuild/buf/cmd/buf@v1.4.0
 
     # install linter
     # binary will be $(go env GOPATH)/bin/golangci-lint
