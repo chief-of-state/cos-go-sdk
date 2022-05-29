@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/protobuf/proto"
@@ -231,7 +232,7 @@ func (s *clientSuite) TestNewClient() {
 			ctx,
 			target,
 			grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) { return listen.Dial() }),
-			grpc.WithInsecure(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		)
 		s.Assert().NoError(err)
 		// this will work because grpc connection won't wait for connections to be

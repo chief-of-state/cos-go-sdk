@@ -70,7 +70,7 @@ mock:
     SAVE ARTIFACT ./cosmocks cosmocks AS LOCAL cosmocks
 
 golang-base:
-    FROM golang:1.18.0-alpine
+    FROM golang:1.18.2-alpine
 
     WORKDIR /app
 
@@ -90,9 +90,9 @@ golang-base:
     RUN go install github.com/vektra/mockery/v2@v2.13.0-beta.1
 
     # install buf from source
-    RUN GO111MODULE=on GOBIN=/usr/local/bin go install github.com/bufbuild/buf/cmd/buf@v1.3.1
+    RUN GO111MODULE=on GOBIN=/usr/local/bin go install github.com/bufbuild/buf/cmd/buf@v1.4.0
 
     # install linter
     # binary will be $(go env GOPATH)/bin/golangci-lint
-    RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
+    RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.46.2
     RUN ls -la $(which golangci-lint)
