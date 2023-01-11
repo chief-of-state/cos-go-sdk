@@ -4,16 +4,15 @@ go 1.18
 
 require (
 	github.com/google/uuid v1.3.0
-	google.golang.org/grpc v1.47.0
+	google.golang.org/grpc v1.52.0
 )
 
 require (
-	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
-	golang.org/x/net v0.0.0-20220526153639-5463443f8c37 // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
@@ -23,7 +22,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/stretchr/testify v1.7.2
-	google.golang.org/genproto v0.0.0-20220527130721-00d5c0f3be58 // indirect
-	google.golang.org/protobuf v1.28.0
+	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6 // indirect
+	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
