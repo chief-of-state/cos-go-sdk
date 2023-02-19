@@ -1,5 +1,5 @@
 # cos-go-sdk
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/chief-of-state/cos-go-sdk/main)
+[![main](https://github.com/chief-of-state/cos-go-sdk/actions/workflows/main.yml/badge.svg)](https://github.com/chief-of-state/cos-go-sdk/actions/workflows/main.yml)
 
 Chief of State go SDK provides an easy way to create and use the a Chief-of-State client in Golang.
 
