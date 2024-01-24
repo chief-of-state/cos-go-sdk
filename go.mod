@@ -3,7 +3,7 @@ module github.com/chief-of-state/cos-go-sdk
 go 1.18
 
 require (
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.6.0
 	google.golang.org/grpc v1.53.0
 )
 
